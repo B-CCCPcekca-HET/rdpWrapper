@@ -76,11 +76,9 @@ namespace rdpWrapper {
       this.themeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.showLogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.siteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.checkFoNewVersionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-      this.txtLog = new sergiye.Common.SimplTextBox();
+      this.txtLog = new rdpWrapper.LogTextBox();
       ((System.ComponentModel.ISupportInitialize)(this.numRDPPort)).BeginInit();
       this.gbxGeneralSettings.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.numMaxConnections)).BeginInit();
@@ -637,29 +635,11 @@ namespace rdpWrapper {
       // helpToolStripMenuItem
       // 
       this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.siteToolStripMenuItem,
-            this.checkFoNewVersionToolStripMenuItem,
             this.aboutToolStripMenuItem});
       this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
       this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.helpToolStripMenuItem.Text = "Help";
-      // 
-      // siteToolStripMenuItem
-      // 
-      this.siteToolStripMenuItem.Name = "siteToolStripMenuItem";
-      this.siteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F1)));
-      this.siteToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-      this.siteToolStripMenuItem.Text = "Site";
-      this.siteToolStripMenuItem.Click += new System.EventHandler(this.siteToolStripMenuItem_Click);
-      // 
-      // checkFoNewVersionToolStripMenuItem
-      // 
-      this.checkFoNewVersionToolStripMenuItem.Name = "checkFoNewVersionToolStripMenuItem";
-      this.checkFoNewVersionToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.U)));
-      this.checkFoNewVersionToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-      this.checkFoNewVersionToolStripMenuItem.Text = "Check fo new version";
-      this.checkFoNewVersionToolStripMenuItem.Click += new System.EventHandler(this.checkFoNewVersionToolStripMenuItem_Click);
-      // 
+      //
       // aboutToolStripMenuItem
       // 
       this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
@@ -736,7 +716,7 @@ namespace rdpWrapper {
     private Label lblWrapperState;
     private TextBox txtServiceVersion;
     private Button btnGenerate;
-    private sergiye.Common.SimplTextBox txtLog;
+    private LogTextBox txtLog;
     private Button btnInstall;
     private MenuStrip mainMenu;
     private ToolStripMenuItem fileToolStripMenuItem;
@@ -744,9 +724,7 @@ namespace rdpWrapper {
     private ToolStripMenuItem exitToolStripMenuItem;
     private ToolStripMenuItem toolsToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
-    private ToolStripMenuItem checkFoNewVersionToolStripMenuItem;
     private ToolStripSeparator toolStripMenuItem1;
-    private ToolStripMenuItem siteToolStripMenuItem;
     private ToolStripMenuItem aboutToolStripMenuItem;
     private ToolStripMenuItem testToolStripMenuItem;
     private ToolStripSeparator toolStripMenuItem3;

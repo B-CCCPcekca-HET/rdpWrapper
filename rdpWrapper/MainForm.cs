@@ -1,9 +1,9 @@
-﻿using sergiye.Common;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Windows.Forms;
 using Timer = System.Windows.Forms.Timer;
@@ -32,7 +32,7 @@ namespace rdpWrapper {
       Icon = Icon.ExtractAssociatedIcon(typeof(MainForm).Assembly.Location);
       var appArch = Environment.Is64BitProcess ? "x64" : "x86";
       var sysArch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-      var title = $"{Updater.ApplicationTitle} v{Updater.CurrentVersion} {appArch}";
+      var title = $"{AppInfo.ApplicationTitle} v{AppInfo.CurrentVersion} {appArch}";
       if (appArch != sysArch)
         title += "/" + sysArch;
       Text = title;
@@ -121,7 +121,7 @@ namespace rdpWrapper {
                 dynamic fwPolicy = Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2")); //INetFwPolicy2
                 dynamic inboundRule = null; //INetFwRule
                 try {
-                  inboundRule = fwPolicy.Rules.Item(Updater.ApplicationName);
+                  inboundRule = fwPolicy.Rules.Item(AppInfo.ApplicationName);
                 }
                 catch (FileNotFoundException) {
                   //ignore
@@ -129,7 +129,7 @@ namespace rdpWrapper {
                 var createNewRule = inboundRule != null;
                 if (inboundRule == null) {
                   inboundRule = Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FWRule"));
-                  inboundRule.Name = Updater.ApplicationName;
+                  inboundRule.Name = AppInfo.ApplicationName;
                 }
 
                 inboundRule.Enabled = true;
@@ -178,19 +178,6 @@ namespace rdpWrapper {
       FormClosed += (_, _) => {
         SavePosition();
       };
-
-      Updater.Subscribe(
-        (message, isError) => {
-          if (InvokeRequired)
-            Invoke(new Action(() => MessageBox.Show(message, Updater.ApplicationName, MessageBoxButtons.OK, isError ? MessageBoxIcon.Warning : MessageBoxIcon.Information)));
-          else
-            MessageBox.Show(message, Updater.ApplicationName, MessageBoxButtons.OK, isError ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
-        },
-        message => InvokeRequired
-          ? (bool)Invoke(new Func<bool>(() => MessageBox.Show(this, message, Updater.ApplicationName, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK))
-          : MessageBox.Show(this, message, Updater.ApplicationName, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK,
-        () => { btnClose_Click(null, EventArgs.Empty); }
-      );
     }
 
     protected override void WndProc(ref Message m) {
@@ -221,16 +208,14 @@ namespace rdpWrapper {
       }
     }
 
-    private void checkFoNewVersionToolStripMenuItem_Click(object sender, EventArgs e) {
-      Updater.CheckForUpdates(Updater.CheckUpdatesMode.AllMessages);
-    }
-
-    private void siteToolStripMenuItem_Click(object sender, EventArgs e) {
-      Updater.VisitAppSite();
-    }
-
     private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
-      Updater.ShowAbout();
+      var copyright = Assembly.GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright;
+      MessageBox.Show(
+        $"{AppInfo.ApplicationTitle}\nVersion {AppInfo.CurrentVersion}\n{copyright}",
+        AppInfo.ApplicationTitle,
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Information);
     }
 
     private void RefreshSystemSettings() {
@@ -265,7 +250,7 @@ namespace rdpWrapper {
       catch (Exception ex) {
         var message = "Error loading settings: " + ex.Message;
         logger.Log(message, Logger.StateKind.Error);
-        //MessageBox.Show(message, Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //MessageBox.Show(message, AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
 
@@ -282,19 +267,23 @@ namespace rdpWrapper {
       ToolStripRadioButtonMenuItem.DisplayAsCheckboxes = true;
       mainMenu.Renderer = new ThemedToolStripRenderer();
 
-      var currentItem = CustomTheme.FillThemesMenu((title, theme, onClick) => {
-        if (theme == null && onClick == null) {
-          themeMenuItem.DropDownItems.Add(title);
-          return null;
-        }
-        var item = new ToolStripRadioButtonMenuItem(title, null, onClick);
-        themeMenuItem.DropDownItems.Add(item);
-        return item;
-      }, () => {
+      void SelectTheme(Theme theme) {
+        Theme.IsAutoThemeEnabled = theme == null;
+        Theme.Current = theme ?? (Theme.SystemUsesDarkMode() ? Theme.Dark : Theme.Light);
         settings.SetValue("theme", Theme.IsAutoThemeEnabled ? "auto" : Theme.Current.Id);
-      }, settings.GetValue("theme", "auto"), "rdpWrapper.themes");
+        Theme.Current.Apply(this);
+        mainMenu.Renderer = new ThemedToolStripRenderer();
+      }
+
+      var savedId = settings.GetValue("theme", "auto");
+      ToolStripRadioButtonMenuItem currentItem = null;
+      foreach (var (title, theme) in new (string, Theme)[] { ("Auto", null), ("Light", Theme.Light), ("Dark", Theme.Dark) }) {
+        var item = new ToolStripRadioButtonMenuItem(title, null, (_, _) => SelectTheme(theme));
+        themeMenuItem.DropDownItems.Add(item);
+        if (theme?.Id == savedId || (theme == null && savedId == "auto"))
+          currentItem = item;
+      }
       currentItem?.PerformClick();
-      Theme.Current.Apply(this);
     }
 
     private void btnRestartService_Click(object sender, EventArgs e) {
@@ -307,7 +296,7 @@ namespace rdpWrapper {
       catch (Exception ex) {
         var message = "Error restarting service: " + ex.Message;
         logger.Log(message, Logger.StateKind.Error);
-        MessageBox.Show(message, Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show(message, AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
       finally {
         SetControlsState(true);
@@ -469,21 +458,21 @@ namespace rdpWrapper {
       try {
         SetControlsState(false);
         addUserToolStripMenuItem.Enabled = false;
-        if (InputForm.GetValue(Updater.ApplicationName, "Please enter the 'User name':", out var userName) == DialogResult.OK) {
+        if (InputForm.GetValue(AppInfo.ApplicationName, "Please enter the 'User name':", out var userName) == DialogResult.OK) {
           using (var usersManager = new LocalUsersManager(logger)) {
             if (usersManager.GetRemoteDesktopUsers().Any(u => u.Equals(userName, StringComparison.OrdinalIgnoreCase))) {
-              MessageBox.Show($"User '{userName}' is already a member of 'Remote Desktop Users' group.", Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+              MessageBox.Show($"User '{userName}' is already a member of 'Remote Desktop Users' group.", AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else {
               var user = usersManager.CreateUserIfNotExist(userName);
               //if (user.GetAuthorizationGroups().Any(g => g.Sid.Value == LocalUsersManager.RemoteDesktopUsersGroupSid)) {
-              //  MessageBox.Show($"User '{userName}' is already a member of 'Remote Desktop Users' group.", Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+              //  MessageBox.Show($"User '{userName}' is already a member of 'Remote Desktop Users' group.", AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
               //}
               //else {
-                if (InputForm.GetValue(Updater.ApplicationName, "Please enter the 'Password':", out var password) == DialogResult.OK) {
+                if (InputForm.GetValue(AppInfo.ApplicationName, "Please enter the 'Password':", out var password) == DialogResult.OK) {
                   usersManager.SetUserPassword(user, password);
                   usersManager.EnsureUserInRemoteDesktopUsers(user);
-                  MessageBox.Show($"User '{user.Name}' is a member of 'Remote Desktop Users' group.", Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                  MessageBox.Show($"User '{user.Name}' is a member of 'Remote Desktop Users' group.", AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
               //}
             }
@@ -492,7 +481,7 @@ namespace rdpWrapper {
       }
       catch (Exception ex) {
         logger.Log(ex.Message, Logger.StateKind.Error);
-        MessageBox.Show(ex.Message, Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(ex.Message, AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
       }
       finally {
         SetControlsState(true);
@@ -504,21 +493,21 @@ namespace rdpWrapper {
       try {
         SetControlsState(false);
         fixMSUserMenuItem.Enabled = false;
-        if (InputForm.GetValue(Updater.ApplicationName, "Enter MS account 'User name':", out var userName) == DialogResult.OK) {
-          var process = Process.Start("runAs", $"/u:{userName} \"{Updater.CurrentFileLocation}\"");
+        if (InputForm.GetValue(AppInfo.ApplicationName, "Enter MS account 'User name':", out var userName) == DialogResult.OK) {
+          var process = Process.Start("runAs", $"/u:{userName} \"{AppInfo.CurrentFileLocation}\"");
           if (process != null) {
             process.WaitForExit(10000);
             if (process.ExitCode == 0) {
-              MessageBox.Show("Action completed successfully!", Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+              MessageBox.Show("Action completed successfully!", AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Information);
               return;
             }
           }
-          MessageBox.Show("Oops, something went wrong. Please try again later.", Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+          MessageBox.Show("Oops, something went wrong. Please try again later.", AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
       }
       catch (Exception ex) {
         logger.Log(ex.Message, Logger.StateKind.Error);
-        MessageBox.Show(ex.Message, Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(ex.Message, AppInfo.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
       }
       finally {
         SetControlsState(true);
@@ -540,7 +529,7 @@ namespace rdpWrapper {
       var width = Screen.PrimaryScreen.Bounds.Width * 2 / 3;
       var height = Screen.PrimaryScreen.Bounds.Height * 2 / 3;
       var arguments = $"/v:127.0.0.2:{oldPort} /w:{width} /h:{height}";
-      if (MessageBox.Show("Test as public connection? (Passwords and bitmaps aren't cached)", Updater.ApplicationTitle, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK) {
+      if (MessageBox.Show("Test as public connection? (Passwords and bitmaps aren't cached)", AppInfo.ApplicationTitle, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK) {
         arguments += " /public";
       }
       //https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mstsc
@@ -551,10 +540,10 @@ namespace rdpWrapper {
       try {
         SetControlsState(false);
 #if LITEVERSION
-        MessageBox.Show("No need for Ini file with TermWrap.", Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        MessageBox.Show("No need for Ini file with TermWrap.", AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 #else
         wrapper.GenerateIniFile(wrapperIniLastPath, true, (message) =>
-          MessageBox.Show(message, Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error)
+          MessageBox.Show(message, AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error)
         );
 #endif
       }
@@ -567,10 +556,10 @@ namespace rdpWrapper {
       try {
         SetControlsState(false);
 #if LITEVERSION
-        MessageBox.Show("No Ini file available with TermWrap.", Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        MessageBox.Show("No Ini file available with TermWrap.", AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 #else
         if (!File.Exists(wrapperIniLastPath)) {
-          MessageBox.Show($"File '{wrapperIniLastPath}' not found.", Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+          MessageBox.Show($"File '{wrapperIniLastPath}' not found.", AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         Process.Start(new ProcessStartInfo {
@@ -618,7 +607,7 @@ namespace rdpWrapper {
         if (operation == "Install") {
           wrapper.Install(preferredWrapper, addDefenderExclusion.Value);
           if (showAntivirusWarn.Value) {
-            MessageBox.Show($"Wrapper was installed in folder: '{wrapper.WrapperFolderPath}'\nYour antivirus software might block or interfere with wrapper folder.\nPlease verify that it is included in the exclusion list!", Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            MessageBox.Show($"Wrapper was installed in folder: '{wrapper.WrapperFolderPath}'\nYour antivirus software might block or interfere with wrapper folder.\nPlease verify that it is included in the exclusion list!", AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
           }
         }
         else {
@@ -628,7 +617,7 @@ namespace rdpWrapper {
       catch (Exception ex) {
         var message = $"Failed to {operation}: {ex.Message}";
         logger.Log(message, Logger.StateKind.Error);
-        MessageBox.Show(message, Updater.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show(message, AppInfo.ApplicationTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
       finally {
         SetControlsState(true);

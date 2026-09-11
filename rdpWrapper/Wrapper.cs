@@ -8,7 +8,6 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.ServiceProcess;
 using Microsoft.Win32;
-using sergiye.Common;
 
 namespace rdpWrapper {
 
@@ -549,7 +548,7 @@ namespace rdpWrapper {
 
 #if DEBUG
     public void EncryptResources() {
-      var externalsPath = Path.Combine(Path.GetDirectoryName(Updater.CurrentFileLocation), "../externals");
+      var externalsPath = Path.Combine(Path.GetDirectoryName(AppInfo.CurrentFileLocation), "../externals");
       var di = new DirectoryInfo(externalsPath);
       if (!di.Exists)
         return;
@@ -565,7 +564,7 @@ namespace rdpWrapper {
     }
 
     public void DecryptResources() {
-      var externalsPath = Path.Combine(Path.GetDirectoryName(Updater.CurrentFileLocation), "../externals");
+      var externalsPath = Path.Combine(Path.GetDirectoryName(AppInfo.CurrentFileLocation), "../externals");
       var di = new DirectoryInfo(externalsPath);
       if (!di.Exists)
         return;
