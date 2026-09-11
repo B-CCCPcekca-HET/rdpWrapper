@@ -1,9 +1,17 @@
-# RDP Wrapper
+# RDP Wrapper regions free
 [![Release](https://img.shields.io/github/v/release/B-CCCPcekca-HET/rdpWrapper)](https://github.com/B-CCCPcekca-HET/rdpWrapper/releases/latest)
 ![Last commit](https://img.shields.io/github/last-commit/B-CCCPcekca-HET/rdpWrapper?color=00AD00)
 
 [![](https://img.shields.io/badge/WINDOWS-7%20%E2%80%93%2011-blue)](https://endoflife.date/windows)
 [![](https://img.shields.io/badge/SERVER-2012%20%E2%80%93%202025-blue)](https://endoflife.date/windows-server)
+
+
+это полная копия репозитория https://github.com/sergiye/rdpWrapper  без регионального блока, без политики, без обид, без негатива.
+Вы всегда можете отблагодарить Сергея или высказать ему за его работу.
+This is an exact copy of the https://github.com/sergiye/rdpWrapper repository—no regional blocks, no politics, no hard feelings, and no negativity.
+You are always welcome to thank Sergiy or share your feedback on his work.
+## Donate!
+Every [cup of coffee](https://patreon.com/SergiyE) you donate will help this app become better and let me know that this project is in demand.
 
 ----
 
