@@ -10,8 +10,7 @@
 Вы всегда можете отблагодарить Сергея или высказать ему за его работу.
 This is an exact copy of the https://github.com/sergiye/rdpWrapper repository—no regional blocks, no politics, no hard feelings, and no negativity.
 You are always welcome to thank Sergiy or share your feedback on his work.
-## Donate!
-Every [cup of coffee](https://patreon.com/SergiyE) you donate will help this app become better and let me know that this project is in demand.
+
 
 ----
 
