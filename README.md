@@ -1,7 +1,6 @@
 # RDP Wrapper
-[![Release](https://img.shields.io/github/v/release/sergiye/rdpWrapper)](https://github.com/sergiye/rdpWrapper/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/sergiye/rdpWrapper/total?color=ff4f42)](https://sergiye.github.io/github-release-stats/?username=sergiye&repository=rdpWrapper&page=1&per_page=100)
-![Last commit](https://img.shields.io/github/last-commit/sergiye/rdpWrapper?color=00AD00)
+[![Release](https://img.shields.io/github/v/release/B-CCCPcekca-HET/rdpWrapper)](https://github.com/B-CCCPcekca-HET/rdpWrapper/releases/latest)
+![Last commit](https://img.shields.io/github/last-commit/B-CCCPcekca-HET/rdpWrapper?color=00AD00)
 
 [![](https://img.shields.io/badge/WINDOWS-7%20%E2%80%93%2011-blue)](https://endoflife.date/windows)
 [![](https://img.shields.io/badge/SERVER-2012%20%E2%80%93%202025-blue)](https://endoflife.date/windows-server)
@@ -36,22 +35,20 @@ The application is portable and has the following features:
  - configure RDP options
  - install / uninstall wrapper
  - generate config for not supported OS (after windows update) - make sure you have [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) installed
- - check for app updates (from main window system menu)
  - Console and RDP session shadowing (using [Task Manager in Windows 7](http://cdn.freshdesk.com/data/helpdesk/attachments/production/1009641577/original/remote_control.png?1413476051) and lower, and [Remote Desktop Connection in Windows 8](http://woshub.com/rds-shadow-how-to-connect-to-a-user-session-in-windows-server-2012-r2/) and higher)
  - Windows 2000, XP and Server 2003 are not supported
 
  #### Additional application features
 
-  - auto-update application to the latest version
   - open 'wrap.ini' in editor
-  - console mode with file output ([#16](https://github.com/sergiye/rdpWrapper/issues/16))
+  - console mode with file output
   - choose where to store settings: file or registry
-  - optionally add Defender exclusion ([#6](https://github.com/sergiye/rdpWrapper/issues/6))
+  - optionally add Defender exclusion
   - optionally add firewall rule when RDP port changed
-  - create a user and add to rdp group ([#9](https://github.com/sergiye/rdpWrapper/issues/9))
+  - create a user and add to rdp group
   - open user management (new/old style)
-  - check if Microsoft Visual C++ 2015-2022 Redistributable is installed ([#7](https://github.com/sergiye/rdpWrapper/issues/7))
-  - fix Microsoft account local cache ([#10](https://github.com/sergiye/rdpWrapper/issues/10))
+  - check if Microsoft Visual C++ 2015-2022 Redistributable is installed
+  - fix Microsoft account local cache
   - configuring display/hide of [client security warnings](https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/remotepc/understanding-security-warnings)
   - configuring client USB device redirection restrictions
 
@@ -61,33 +58,13 @@ The application is portable and has the following features:
 
 Here's a preview of the app's UI running on Windows 10:
 
-[<img src="https://github.com/sergiye/rdpWrapper/raw/master/preview.png" alt="Themes" width="300"/>](https://raw.githubusercontent.com/sergiye/rdpWrapper/master/preview.png)
+[<img src="https://github.com/B-CCCPcekca-HET/rdpWrapper/raw/master/preview.png" alt="Themes" width="300"/>](https://raw.githubusercontent.com/B-CCCPcekca-HET/rdpWrapper/master/preview.png)
 
-Also there are:
- - `Light`/`Dark` themes with auto switching mode.
- - Custom `themes` supported from external files
-
-To add custom theme to the app, just create a `themes` folder next to the executable file and place any {themeName}.json files there.
-Custom theme.json file content example:
-```json
-{
-  "DisplayName": "Custom Theme",
-  "DarkMode": true,
-  "BackgroundColor": "#1E1E1E",
-  "ForegroundColor": "#E9E9E9",
-  "HyperlinkColor": "#00D980",
-  "SelectedBackgroundColor": "#4CBB17",
-  "SelectedForegroundColor": "#000000",
-  "LineColor": "#262626",
-  "StrongLineColor": "#454545",
-  "WarnColor": "#FF4500"
-}
-```
-Don't forget to restart the app to scan for new theme files!
+Also there are `Light`/`Dark` themes with auto switching mode.
 
 ## Download
 
-The published version can be obtained from [releases](https://github.com/sergiye/rdpWrapper/releases).
+The published version can be obtained from [releases](https://github.com/B-CCCPcekca-HET/rdpWrapper/releases).
 
 > [!WARNING]
 >Microsoft and other major antivirus vendors have flagged RdpWrapper as "malware". This is likely due to Microsoft's hatred against RdpWrapper, not because it contains a virus or such. Flags from Microsoft usually spread to other antivirus vendors.
@@ -141,13 +118,10 @@ You can check if it works properly on your PC. If you notice any inaccuracies, p
 
 Also, don't forget to ★ star ★ the repository to help other people find it.
 
-<!-- [![Star History Chart](https://api.star-history.com/svg?repos=sergiye/rdpwrapper&type=Date)](https://star-history.com/#sergiye/rdpwrapper&Date) -->
+<!-- [![Star History Chart](https://api.star-history.com/svg?repos=B-CCCPcekca-HET/rdpwrapper&type=Date)](https://star-history.com/#B-CCCPcekca-HET/rdpwrapper&Date) -->
 
-[//]: # ([![Stargazers over time]&#40;https://starchart.cc/sergiye/rdpwrapper.svg?variant=adaptive&#41;]&#40;https://starchart.cc/sergiye/rdpwrapper&#41;)
+[//]: # ([![Stargazers over time]&#40;https://starchart.cc/B-CCCPcekca-HET/rdpwrapper.svg?variant=adaptive&#41;]&#40;https://starchart.cc/B-CCCPcekca-HET/rdpwrapper&#41;)
 
-<!-- [![Stargazers](https://reporoster.com/stars/sergiye/rdpWrapper)](https://star-history.com/#sergiye/rdpWrapper&Date) -->
+<!-- [![Stargazers](https://reporoster.com/stars/B-CCCPcekca-HET/rdpWrapper)](https://star-history.com/#B-CCCPcekca-HET/rdpWrapper&Date) -->
 
-<!-- [![Forkers](https://reporoster.com/forks/sergiye/rdpWrapper)](https://github.com/sergiye/rdpWrapper/network/members) -->
-
-## Donate!
-Every [cup of coffee](https://patreon.com/SergiyE) you donate will help this app become better and let me know that this project is in demand.
+<!-- [![Forkers](https://reporoster.com/forks/B-CCCPcekca-HET/rdpWrapper)](https://github.com/B-CCCPcekca-HET/rdpWrapper/network/members) -->
