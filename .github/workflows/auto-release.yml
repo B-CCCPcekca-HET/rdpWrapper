@@ -2,25 +2,20 @@ name: Auto release
 
 on:
   push:
-    branches: [releases]
+    branches: [master]
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: windows-2022
-    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: nuget/setup-nuget@v2
       - uses: microsoft/setup-msbuild@v1.1
         with:
           msbuild-architecture: x64
-
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            buildprops:
-              - 'Directory.Build.props'
 
       - name: NuGet restore
         run: nuget restore rdpWrapper.sln
@@ -37,38 +32,9 @@ jobs:
           msbuild rdpWrapper.sln /t:Rebuild /p:DebugType=None /p:Configuration=Release /p:Platform="x86"
           msbuild rdpWrapper.sln /t:Rebuild /p:DebugType=None /p:Configuration=ReleaseLite /p:Platform="x86"
 
-      - name: upload-unsigned-artifact
-        id: upload-unsigned-artifact
-        uses: actions/upload-artifact@v4
-        with: 
-          name: unsigned
-          path: rdpWrapper/bin/*.exe
-
-      - id: optional_step_id
-        uses: signpath/github-action-submit-signing-request@v2
-        with:
-          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-          organization-id: '8c0913d9-c7a0-4dbd-9bf4-24c75fda57b4'
-          project-slug: 'rdpWrapper'
-          signing-policy-slug: 'release-signing'
-          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
-          wait-for-completion: true
-          output-artifact-directory: 'rdpWrapper/bin/signed'
-          # parameters: |
-          #   version: ${{ toJSON(some.userinput) }}
-          #   myparam: "another param"
-
-      - name: Delete unsigned artifact
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: unsigned
-
-      # - name: Debug files
-      #   run: dir rdpWrapper/bin/signed
-
       - name: Prepare release files
         run: |
-          $source = "rdpWrapper/bin/signed"
+          $source = "rdpWrapper/bin"
           $dest = "release"
 
           New-Item -ItemType Directory -Force -Path $dest | Out-Null
@@ -84,9 +50,6 @@ jobs:
           }
         shell: powershell
 
-      # - name: Debug release files
-      #   run: dir release
-
       - name: Get version from exe
         id: get_version
         run: |
@@ -99,25 +62,12 @@ jobs:
           echo "version=$shortVersion" >> $env:GITHUB_OUTPUT
         shell: powershell
 
-      # - name: Debug version
-      #   run: |
-      #     echo "version is set: ${{ steps.get_version.outputs.version }}"
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
           name: Build ${{ steps.get_version.outputs.version }}
-          draft: true
+          draft: false
           files: |
             release/*.exe
             release/*.zip
-
-      - name: Publish build
-        uses: actions/upload-artifact@v4
-        with:
-          name: rdpWrapper
-          path: |
-            rdpWrapper/bin/signed
-            release/
-            
