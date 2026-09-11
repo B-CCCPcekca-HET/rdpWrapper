@@ -31,13 +31,14 @@ namespace rdpWrapper {
     [STAThread]
     private static void Main(string[] args) {
 
-      Crasher.Listen();
 
-      // new Wrapper(new FileLogger()).EncryptResources();
-      // new Wrapper(new FileLogger()).DecryptResources();
-      // return;
+            // Crasher.Listen();
 
-      var consoleMode = args.Length > 0;
+            // new Wrapper(new FileLogger()).EncryptResources();
+            // new Wrapper(new FileLogger()).DecryptResources();
+            // return;
+
+            var consoleMode = args.Length > 0;
       if (consoleMode) {
         logger = new FileLogger();
         logger.OnNewLogEvent += AddToLog;
@@ -47,29 +48,12 @@ namespace rdpWrapper {
         logger.Log($"{Updater.ApplicationTitle} {typeof(Program).Assembly.GetName().Version.ToString(3)} {(Environment.Is64BitProcess ? "x64" : "x32")}", Logger.StateKind.Info);
       }
 
-      if (!OSHelper.IsCompatible(true, out var errorMessage, out var fixAction)) {
-        if (consoleMode) {
-          logger.Log(errorMessage, Logger.StateKind.Error);
-        }
-        else {
-          if (fixAction != null) {
-            if (MessageBox.Show(errorMessage, Updater.ApplicationName, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-              fixAction();
-            }
-          }
-          else {
-            MessageBox.Show(errorMessage, Updater.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-          }
-        }
-        Environment.Exit(0);
-      }
-
-      if (WinApiHelper.CheckRunningInstances(true, true)) {
-        // fallback
-        MessageBox.Show($"{Updater.ApplicationName} is already running.", Updater.ApplicationName,
-          MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        return;
-      }
+      //if (WinApiHelper.CheckRunningInstances(true, true)) {
+      //  // fallback
+      //  MessageBox.Show($"{Updater.ApplicationName} is already running.", Updater.ApplicationName,
+      //    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+      //  return;
+      //}
 
       if (consoleMode) {
         StartConsole(args);
